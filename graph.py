@@ -41,13 +41,12 @@ def call_llm(messages, max_tokens):
     )
     return response.choices[0].message.content
 
-def run_research(topic: str) -> dict:
+def run_research(topic: str, callback=None) -> dict:
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": f"Research this topic: {topic}\n\nStart with a web search now."}
     ]
 
-    # Phase 1: Research loop — max 4 tool calls
     for i in range(4):
         reply = call_llm(messages, max_tokens=250)
         messages.append({"role": "assistant", "content": reply})
@@ -55,6 +54,7 @@ def run_research(topic: str) -> dict:
         tool_name, tool_input = parse_tool_call(reply)
 
         if tool_name == "web_search":
+            if callback: callback(f"🔎 Searching: {tool_input}")
             result = web_search.invoke({"query": tool_input})
             messages.append({
                 "role": "user",
@@ -62,6 +62,7 @@ def run_research(topic: str) -> dict:
             })
 
         elif tool_name == "read_url":
+            if callback: callback(f"📄 Reading: {tool_input.strip()[:60]}...")
             result = read_url.invoke({"url": tool_input.strip()})
             messages.append({
                 "role": "user",
@@ -69,13 +70,12 @@ def run_research(topic: str) -> dict:
             })
 
         else:
-            # Model tried to write report too early — push it back
             messages.append({
                 "role": "user",
                 "content": "Use a tool first. Search the web before writing the report."
             })
 
-    # Phase 2: Force the final report
+    if callback: callback("✍️ Writing final report...")
     messages.append({
         "role": "user",
         "content": (

@@ -33,22 +33,27 @@ if st.button("Start Research", type="primary"):
         st.error("Please enter a topic first.")
     else:
         with st.status("Agent is researching...", expanded=True) as status:
-            st.write("🔎 Searching the web...")
+            log = st.empty()
             start_time = time.time()
-            
+
+            def update_log(msg):
+                log.markdown(msg)
+                status.update(label=msg)
+
             try:
-                result = run_research(topic)
+                result = run_research(topic, callback=update_log)
                 elapsed = round(time.time() - start_time, 1)
-                
+
                 status.update(
-                    label=f"Research complete in {elapsed}s",
+                    label=f"✅ Research complete in {elapsed}s",
                     state="complete"
                 )
-                
+
                 st.success("Report ready!")
                 st.markdown("---")
                 st.markdown(result["result"])
-                
+
             except Exception as e:
                 status.update(label="Research failed", state="error")
                 st.error(f"Error: {str(e)}")
+                
