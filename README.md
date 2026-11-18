@@ -37,4 +37,8 @@ GROQ_API_KEY=your_key
 
 ```bash
 streamlit run app.py
+<<<<<<< HEAD
 ```
+=======
+```
+>>>>>>> 8a8adb962df08c4c5a4cb8e888e8f301e4e516f6

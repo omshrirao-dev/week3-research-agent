@@ -81,12 +81,12 @@ def run_research(topic: str, callback=None) -> dict:
         "content": (
             "You have gathered enough information. "
             "Now write a complete, well-structured markdown report on the topic. "
-            "Include: Overview, Key Findings, Detailed Analysis, Sources. "
-            "Write the FULL report now. Do not use any tools."
+            "Include: Overview, Key Findings, Sources. "
+            "Keep it concise — under 600 words. Do not use any tools."
         )
     })
 
-    report = call_llm(messages, max_tokens=2500)
+    report = call_llm(messages, max_tokens=900)
 
     filename = re.sub(r'[^a-z0-9]+', '_', topic.lower())[:40]
     write_report.invoke({"filename": filename, "content": report})
